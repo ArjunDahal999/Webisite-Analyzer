@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx playwright install chromium && pnpm exec playwright install "
+    "postinstall": "pnpm exec playwright install && npx playwright install "
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
