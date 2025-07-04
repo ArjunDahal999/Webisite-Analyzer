@@ -7,7 +7,10 @@ export const analyzeUrl = baseActionClient
   .inputSchema(urlValidationSchema)
   .action(async ({ parsedInput }) => {
     const { url } = parsedInput;
-    const browser = await puppeteer.launch({ headless: "shell" });
+    const browser = await puppeteer.launch({
+      executablePath: puppeteer.executablePath(),
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
 
     let totalBytes = 0;

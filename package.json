@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "npx puppeteer browsers install chrome-headless-shell && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx puppeteer browsers install chrome-headless-shell"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
