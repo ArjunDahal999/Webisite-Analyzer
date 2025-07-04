@@ -1,36 +1,35 @@
 "use server";
 import { baseActionClient } from "@/lib/action-client";
-import puppeteer from "puppeteer";
 import { urlValidationSchema } from "@/validation/url-validation";
+import { chromium } from "playwright";
 
 export const analyzeUrl = baseActionClient
   .inputSchema(urlValidationSchema)
   .action(async ({ parsedInput }) => {
     const { url } = parsedInput;
-    const browser = await puppeteer.launch({
-      executablePath: puppeteer.executablePath(),
+
+    const browser = await chromium.launch({
+      headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
-    const page = await browser.newPage();
+    const context = await browser.newContext();
+    const page = await context.newPage();
 
     let totalBytes = 0;
     let requestCount = 0;
 
+    // Monitor network requests
     page.on("response", async (response) => {
       try {
-        const buffer = await response.buffer();
-        totalBytes += buffer.length;
+        const body = await response.body();
+        totalBytes += body.length;
         requestCount++;
       } catch (err) {
         if (err instanceof Error) {
-          console.warn(
-            `⚠️ Skipped response: ${response.url()} — ${err.message}`
-          );
+          console.warn(`Skipped response: ${response.url()} — ${err.message}`);
         } else {
-          console.warn(
-            `⚠️ Skipped response: ${response.url()} — Unknown error`
-          );
+          console.warn(`Skipped response: ${response.url()} — Unknown error`);
         }
       }
     });
@@ -39,8 +38,8 @@ export const analyzeUrl = baseActionClient
     await page.goto(url, { waitUntil: "load", timeout: 60000 });
     const end = Date.now();
 
-    const loadTime = ((end - start) / 1000).toFixed(2); // in seconds
-    const pageSize = (totalBytes / 1024).toFixed(2); // in KB
+    const loadTime = ((end - start) / 1000).toFixed(2);
+    const pageSize = (totalBytes / 1024).toFixed(2);
 
     await browser.close();
 
