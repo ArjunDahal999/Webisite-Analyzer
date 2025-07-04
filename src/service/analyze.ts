@@ -11,6 +11,7 @@ export const analyzeUrl = baseActionClient
       executablePath: puppeteer.executablePath(),
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+
     const page = await browser.newPage();
 
     let totalBytes = 0;
